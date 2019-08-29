@@ -67,7 +67,6 @@ function validateFiles(taskContext, fs) {
  * @param {*} grunt
  */
 function simpleConcat(grunt) {
-  this.requiresConfig(['simpleConcat']);
   grunt.registerMultiTask(
     'simpleConcat',
     'Replace referenced JS file paths with one single JS in your HTML',
