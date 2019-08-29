@@ -13,13 +13,17 @@ function getTask(grunt) {
     var fileObj = validateFiles(this, fs);
 
     var destPath = path.concat(fileObj.cwd, fileObj.dest);
+    var srcPath = path.concat(fileObj.cwd, fileObj.src);
+    if (!fs.existsSync(srcPath)) {
+      return grunt.fail.fatal('simpleConcat: src html file is not valid');
+    }
     if (!fs.existsSync(destPath)) {
       fs.mkdirSync(destPath);
       grunt.log.write('simpleConcat: dest folder was not available, created').ok();
     }
 
     var matchingRegex = /<!-- simple:([a-z]+) -->((.|\n|\r)+)<!-- endsimple -->/gm;
-    var htmlContent = grunt.file.read(fileObj.src);
+    var htmlContent = grunt.file.read(srcPath);
     var matchResult = matchingRegex.exec(htmlContent);
     var fileNamePrefix = matchResult[1];
     var filePaths = matchResult[2].trim().split('\n').map(fpath => fpath.trim());
@@ -28,8 +32,8 @@ function getTask(grunt) {
       grunt.file.write(destFilePath, contents);
       grunt.log.write(`simpleConcat: ${destFilePath} created`).ok();
       htmlContent.replace(matchingRegex, `<script type="text/javascript" src="${destFilePath}"></script>`);
-      grunt.file.write(fileObj.src, htmlContent);
-      grunt.log.write(`simpleConcat: ${fileObj.src} rewritten`).ok();
+      grunt.file.write(srcPath, htmlContent);
+      grunt.log.write(`simpleConcat: ${srcPath} rewritten`).ok();
       done(true);
     });
   }
