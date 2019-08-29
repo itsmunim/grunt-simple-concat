@@ -42,7 +42,7 @@ function validateFiles(taskContext, fs) {
 
   var fileObj = taskContext.files[0];
 
-  if (!fileObj.src.endsWith('.html') || !fs.existsSync(fileObj.src)) {
+  if (!fileObj.src.endsWith('.html')) {
     return grunt.fail.fatal('simpleConcat: Expecting a single html file as src');
   }
 
