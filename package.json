@@ -1,0 +1,30 @@
+{
+  "name": "grunt-simple-concat",
+  "version": "1.0.0",
+  "description": "Replace referenced JS file paths with one single JS in your HTML",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gruntplugin",
+    "html",
+    "replace",
+    "js",
+    "reference",
+    "dependency",
+    "postinstall",
+    "html"
+  ],
+  "author": {
+    "name": "Munim Dibosh",
+    "email": "abdulmunim.buet@gmail.com",
+    "url": "http://github.com/dibosh"
+  },
+  "main": "tasks/simpleConcat.js",
+  "repository": "dibosh/grunt-simple-concat",
+  "license": "MIT",
+  "dependencies": {
+    "concat": "1.0.3",
+    "grunt": "^0.4.5"
+  }
+}
