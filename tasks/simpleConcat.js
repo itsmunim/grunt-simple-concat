@@ -85,8 +85,9 @@ function getNpmDependencyPaths(cheerio, path, htmlContent) {
   var cwd = this.cwd;
   var prefix = 'node_modules/';
   var npmDependencies = $('script')
-    .filter(function (_, scriptTag) { return scriptTag.attribs['src'].includes(prefix); })
-    .map(function (_, scriptTag) {
+    .filter(function (_, scriptTag) {
+      return !isEmpty(scriptTag) && scriptTag.attribs['src'].includes(prefix);
+    }).map(function (_, scriptTag) {
       var src = scriptTag.attribs['src'];
       var lastEnd = lastEndOfFoundStr(src, prefix);
       return lastEnd > -1 ? path.join(cwd, prefix, src.substr(lastEnd)) : '';
@@ -95,6 +96,21 @@ function getNpmDependencyPaths(cheerio, path, htmlContent) {
   return Array.from(npmDependencies);
 }
 
+/**
+ * A simple isEmpty implementation for any kind of javascript object/string
+ * @param {*} thing 
+ */
+function isEmpty(thing) {
+  var isStr = typeof thing === 'string';
+  return isStr ? thing.trim() === ''
+    : (thing === null || thing === undefined || JSON.stringify(thing) === '{}');
+}
+
+/**
+ * Using minify js, minify the given script file
+ * @param {*} minify 
+ * @param {*} filePath 
+ */
 function doMinify(minify, filePath) {
   var grunt = this.grunt;
   return minify(filePath).then((minifiedContent) => {
@@ -103,6 +119,12 @@ function doMinify(minify, filePath) {
   });
 }
 
+/**
+ * Finds last end index of a found substring
+ * e.g. given = /a/bcd/k, strToFind = bcd/, returns 7
+ * @param {*} given 
+ * @param {*} strToFind 
+ */
 function lastEndOfFoundStr(given, strToFind) {
   var presenceIdx = given.indexOf(strToFind);
   return presenceIdx > -1 ? presenceIdx + strToFind.length : -1;
