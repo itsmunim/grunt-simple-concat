@@ -86,9 +86,11 @@ function getNpmDependencyPaths(cheerio, path, htmlContent) {
   var prefix = 'node_modules/';
   var npmDependencies = $('script')
     .filter(function (_, scriptTag) {
-      return !isEmpty(scriptTag) && scriptTag.attribs['src'].includes(prefix);
+      return !isEmpty(scriptTag.attribs)
+        && scriptTag.attribs.src
+        && scriptTag.attribs.src.includes(prefix);
     }).map(function (_, scriptTag) {
-      var src = scriptTag.attribs['src'];
+      var src = scriptTag.attribs.src;
       var lastEnd = lastEndOfFoundStr(src, prefix);
       return lastEnd > -1 ? path.join(cwd, prefix, src.substr(lastEnd)) : '';
     });
