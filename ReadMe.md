@@ -8,7 +8,7 @@
 simpleConcat: {
   main: {
     src: 'app/index.html',
-    cwd: '/Users/amd/projects/ams/', // working dir absolute path
+    cwd: './', // working dir relative(or absolute) path
     dest: 'dist'
   }
 }
@@ -48,6 +48,10 @@ Example-
 ```
 
 - If the task is run, this will generate a `vendor.js` file in specified `dest` folder and your html will have all these replaced with single `script` tag with path for `vendor.js`
+
+- Testing the Task
+
+A sample task config and setup is added in `testing/` folder. Simply create an `index.html` with similar kind of content as `index.example.html` as given in `app` folder. Then run `npm i` to install the dependencies and finally run `grunt`
 
 
 Don't forget to hit a star, if this saved your life by working in your legacy project!
