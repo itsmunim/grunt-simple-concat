@@ -8,8 +8,7 @@ function getTask(grunt) {
     var minify = require('minify');
     var cheerio = require('cheerio');
     var done = this.async();
-    var context = { grunt: grunt, task: this };
-    context = validateFiles(context, fs);
+    var context = prepareContext(grunt, this, fs);
 
     /** bind context */
     log = log.bind(context);
@@ -20,6 +19,7 @@ function getTask(grunt) {
 
     var destPath = path.join(context.cwd, context.dest);
     var srcPath = path.join(context.cwd, context.src);
+    var scriptsPath = path.join(context.cwd, context.scriptsDest);
 
     if (!fs.existsSync(srcPath)) {
       return log('fail', 'simpleConcat: src html file is not valid');
@@ -34,16 +34,18 @@ function getTask(grunt) {
     var htmlContent = grunt.file.read(srcPath);
     var matchResult = matchingRegex.exec(htmlContent);
     var fileNamePrefix = matchResult[1];
-    var destFilePath = path.join(destPath, fileNamePrefix + '.js');
+    var vendorFilePath = path.join(scriptsPath, fileNamePrefix + '.js');
+    var relativeVendorFilePath = vendorFilePath.replace(context.dest + '/', '');
 
     concat(getNpmDependencyPaths(cheerio, path, htmlContent))
       .then((contents) => {
-        grunt.file.write(destFilePath, contents);
-        log('success', `simpleConcat: ${destFilePath} created`);
-        return doMinify(minify, destFilePath);
+        grunt.file.write(vendorFilePath, contents);
+        log('success', `simpleConcat: ${vendorFilePath} created`);
+        return doMinify(minify, vendorFilePath);
       }).then(() => {
-        htmlContent = htmlContent.replace(matchingRegex, `<script type="text/javascript" src="${destFilePath}"></script>`);
-        grunt.file.write(srcPath, htmlContent);
+        htmlContent = htmlContent.replace(matchingRegex,
+          `<script type="text/javascript" src="${relativeVendorFilePath}"></script>`);
+        grunt.file.write(path.join(destPath, path.basename(srcPath)), htmlContent);
         log('success', `simpleConcat: ${srcPath} rewritten`);
         done(true);
       }).catch((ex) => {
@@ -106,35 +108,42 @@ function lastEndOfFoundStr(given, strToFind) {
   return presenceIdx > -1 ? presenceIdx + strToFind.length : -1;
 }
 
-function validateFiles(context, fs) {
-  var taskContext = context.task;
-  var grunt = context.grunt;
+function prepareContext(grunt, task, fs) {
+  var taskData = task.data;
 
-  if (!taskContext.files.length) {
-    return grunt.fail.fatal('simpleConcat: No src/dest provided');
+  if (!taskData.src) {
+    return grunt.fail.fatal('simpleConcat: No src index file path given');
   }
 
-  var fileObj = taskContext.files[0];
+  if (!taskData.dest) {
+    return grunt.fail.fatal('simpleConcat: No dest path given');
+  }
 
-  var clonedFileObj = {};
-  clonedFileObj.dest = fileObj.dest;
-  // always work with single source
-  clonedFileObj.src = fileObj.src[0];
-  clonedFileObj.cwd = fileObj.cwd;
+  var scriptsDest = taskData.scriptsDir
+    ? taskData.dest + '/' + taskData.scriptsDir : taskData.dest;
 
-  if (!clonedFileObj.src.endsWith('.html')) {
+  var context = {
+    dest: taskData.dest,
+    src: taskData.src,
+    cwd: taskData.cwd,
+    scriptsDest: scriptsDest,
+    grunt: grunt,
+    task: task
+  };
+
+  if (!context.src.endsWith('.html')) {
     return grunt.fail.fatal('simpleConcat: Expecting a single html file as src');
   }
 
-  if (!fs.existsSync(clonedFileObj.cwd)) {
+  if (!fs.existsSync(context.cwd)) {
     return grunt.fail.fatal('simpleConcat: Expecting a valid cwd');
   }
 
-  if (!clonedFileObj.dest.trim()) {
+  if (!context.dest.trim()) {
     return grunt.fail.fatal('simpleConcat: Expecting a dest folder name');
   }
 
-  return Object.assign({}, context, clonedFileObj);
+  return context;
 }
 
 /**

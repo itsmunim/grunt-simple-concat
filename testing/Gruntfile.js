@@ -7,6 +7,7 @@ module.exports = function (grunt) {
       main: {
         src: 'app/index.html',
         dest: 'dist',
+        scriptsDir: 'scripts',
         cwd: './'
       }
     }
