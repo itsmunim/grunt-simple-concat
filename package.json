@@ -1,6 +1,6 @@
 {
   "name": "grunt-simple-concat",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Replace referenced JS file paths with one single JS in your HTML",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
