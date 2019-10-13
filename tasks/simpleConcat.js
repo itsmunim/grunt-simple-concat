@@ -103,7 +103,7 @@ function getNpmDependencyPaths(cheerio, path, htmlContent) {
 function isEmpty(thing) {
   var isStr = typeof thing === 'string';
   return isStr ? thing.trim() === ''
-    : (thing === null || thing === undefined || JSON.stringify(thing) === '{}');
+    : (thing === null || thing === undefined || Object.keys(thing).length === 0);
 }
 
 /**
